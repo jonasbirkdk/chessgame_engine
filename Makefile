@@ -1,26 +1,15 @@
-chess: ChessMain.o
-	g++ -g -Wall ChessMain.o -o chess
+CC = g++ -std=c++17 -Wpedantic
+target = chess
 
-ChessMain.o: ChessMain.cpp ChessBoard.h helper.h Pawn.h Queen.h Bishop.h Castle.h Piece.h Knight.h macros.h
-	g++ -c -g -Wall ChessMain.cpp -o ChessMain.o
+DIRS = Bishop Castle ChessBoard King Knight Pawn Queen helper
+DIRS.o = $(foreach var, $(DIRS), $(var)/$(var).o)
 
-# chess: ChessMain.o ChessBoard.o Pieces.o macros.o helper.o
-# 	g++ -g -Wall ChessMain.o ChessBoard.o helper.o macros.o Pieces.o -o chess
+$(target): ChessMain.o $(DIRS.o)
+	$(CC) ChessMain.o ${DIRS.o} -o $(target)
 
-# ChessMain.o: ChessMain.cpp ChessBoard.h helper.h macros.h Pieces.h
-# 	g++ -c -g -Wall ChessMain.cpp -o ChessMain.o
+obj:
+	$(CC) -c ChessMain.cpp -o ChessMain.o
+	$(foreach var, $(DIRS), $(CC) -c $(var).cpp -o $(var).o;)
 
-# ChessBoard.o: ChessBoard.h Pieces.h helper.h macros.h
-# 	g++ -c -g -Wall ChessBoard.h -o ChessBoard.o
-
-# Pieces.o: Pieces.h ChessBoard.h helper.h macros.h
-# 	g++ -c -g -Wall Pieces.h -o Pieces.o
-
-# helper.o: helper.h ChessBoard.h macros.h Pieces.h
-# 	g++ -c -g -Wall helper.h -o helper.o
-
-# macros.o: macros.h helper.h ChessBoard.h Pieces.h
-# 	g++ -c -g -Wall macros.h -o macros.o
-
-clean: 
-	rm -rf *.o chess
+clean:
+	rm -rf *.o $(DIRS.o) $(target)

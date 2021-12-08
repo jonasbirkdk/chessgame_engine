@@ -4,6 +4,14 @@
 #define TOTAL_PIECES 12
 #define PIECES_PER_TEAM 6
 
+// Starting positions for pieces
+#define CASTLE 0
+#define KNIGHT 1
+#define BISHOP 2
+#define QUEEN 3
+#define KING 4
+#define PAWN 5
+
 // White pieces (as denoted by prefix W_)
 #define W_KING 0
 #define W_QUEEN 1
