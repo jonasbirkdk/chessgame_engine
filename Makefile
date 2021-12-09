@@ -1,15 +1,16 @@
 CC = g++ -Wpedantic
 target = chess
 
-DIRS = Bishop Castle ChessBoard King Knight Pawn Queen helper
-DIRS.o = $(foreach var, $(DIRS), $(var)/$(var).o)
+PIECES = Bishop Castle King Knight Pawn Queen helper
+PIECES.o = $(foreach var, $(PIECES), $(var)/$(var).o)
 
-$(target): ChessMain.o $(DIRS.o)
-	$(CC) ChessMain.o ${DIRS.o} -o $(target)
+$(target): ChessMain.o ChessBoard.o $(PIECES.o)
+	$(CC) ChessMain.o ChessBoard.o ${PIECES.o} -o $(target)
 
 obj:
 	$(CC) -c ChessMain.cpp -o ChessMain.o
-	$(foreach var, $(DIRS), $(CC) -c $(var).cpp -o $(var).o;)
+	$(CC) -c ChessBoard.cpp -o ChessBoard.o
+	$(foreach var, $(PIECES), $(CC) -c $(var).cpp -o $(var).o;)
 
 clean:
 	rm -rf *.o $(DIRS.o) $(target)

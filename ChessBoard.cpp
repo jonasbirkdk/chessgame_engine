@@ -1,11 +1,11 @@
 #include "ChessBoard.h"
-#include "../King/King.h"
-#include "../Bishop/Bishop.h"
-#include "../Castle/Castle.h"
-#include "../Pawn/Pawn.h"
-#include "../Knight/Knight.h"
-#include "../Queen/Queen.h"
-#include "../helper/helper.h"
+#include "King/King.h"
+#include "Bishop/Bishop.h"
+#include "Castle/Castle.h"
+#include "Pawn/Pawn.h"
+#include "Knight/Knight.h"
+#include "Queen/Queen.h"
+#include "helper/helper.h"
 #include <iostream>
 
 ChessBoard::ChessBoard()

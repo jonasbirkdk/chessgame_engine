@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../macros.h"
-#include "../Piece/Piece.h"
+#include "macros.h"
+#include "Piece/Piece.h"
 #include <iostream>
 
 class ChessBoard {

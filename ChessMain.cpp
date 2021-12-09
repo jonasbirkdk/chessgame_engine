@@ -1,5 +1,4 @@
-#include "ChessBoard/ChessBoard.h"
-#include "helper/helper.h"
+#include "ChessBoard.h"
 #include <iostream>
 
 using std::cout;
