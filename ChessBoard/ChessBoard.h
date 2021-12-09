@@ -10,6 +10,7 @@ class ChessBoard {
   std::string nextUp;
 
   ChessBoard();
+  ~ChessBoard();
   void resetBoard();
   void submitMove(std::string srcSquare, std::string destSquare);
 };

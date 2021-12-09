@@ -1,8 +1,9 @@
 #pragma once
 
 // Global constants
-#define TOTAL_PIECES 12
 #define PIECES_PER_TEAM 6
+#define MAX_FILE 7
+#define MAX_RANK 7
 
 // Starting positions for pieces
 #define CASTLE 0

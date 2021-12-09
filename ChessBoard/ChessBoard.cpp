@@ -10,18 +10,23 @@
 
 ChessBoard::ChessBoard()
 {
-  int totalFiles = 7;
-  int totalRanks = 7;
+  auto resetSquare
+      = [&](int file, int rank) { this->board[file][rank] = nullptr; };
+  forEachSquare(resetSquare);
 
-  auto lambda = [](Piece* board[8][8]) { this->board[file][rank] = nullptr; };
-  forEachSquare(this->board, lambda);
-
-  // for (int rank = 0; rank <= totalRanks; ++rank) {
-  //   for (int file = 0; file <= totalFiles; ++file) {
-  //     board[file][rank] = nullptr;
-  //   }
-  // }
   this->resetBoard();
+};
+
+ChessBoard::~ChessBoard()
+{
+  // Deleting any remaining pieces
+  auto deletePiece = [&](int file, int rank) {
+    if (this->board[file][rank] != nullptr) {
+      delete this->board[file][rank];
+    }
+    this->board[file][rank] = nullptr;
+  };
+  forEachSquare(deletePiece);
 };
 
 void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
@@ -38,7 +43,7 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
   }
 
   // Checking srcSquare is not empty
-  if (squareEmpty(srcSquare, this->board)) {
+  if (this->board[srcFile][srcRank] == nullptr) {
     printErrorMessage(srcSquare, destSquare, this->board, EMPTY_SOURCE_SQUARE);
     return;
   }
@@ -51,7 +56,9 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
   }
 
   // Check destSquare does not have piece of own colour
-  if (friendlyFire(srcSquare, destSquare, board)) {
+  if (board[destFile][destRank] != nullptr
+      && (board[srcFile][srcRank]->getColour()
+          == board[destFile][destRank]->getColour())) {
     printErrorMessage(srcSquare, destSquare, this->board, FRIENDLY_FIRE);
     return;
   }
@@ -65,14 +72,14 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
     printErrorMessage(srcSquare, destSquare, this->board, OWN_KING_IN_CHECK);
     return;
   }
-
   if (this->board[srcFile][srcRank]->validMove(
           srcSquare, destSquare, this->board)) {
     printMove(srcSquare, destSquare, this->board);
-
+    if (this->board[destFile][destRank] != nullptr) {
+      delete this->board[destFile][destRank];
+    }
     this->board[destFile][destRank] = this->board[srcFile][srcRank];
     this->board[srcFile][srcRank] = nullptr;
-
     this->nextUp = (this->nextUp == "White") ? "Black" : "White";
 
     if (inCheck(this->nextUp, this->board)) {
@@ -87,7 +94,6 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
         std::cout << "Game ended in a stalemate" << std::endl;
       }
     }
-
     return;
   } else {
     printErrorMessage(srcSquare, destSquare, this->board, PIECE_RULES_BROKEN);
@@ -97,8 +103,6 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
 
 void ChessBoard::resetBoard()
 {
-  int totalFiles = 7;
-  int totalRanks = 7;
   int piecesPerTeam = 5;
   int blackBackRank = 7;
   int whiteBackRank = 0;
@@ -110,35 +114,34 @@ void ChessBoard::resetBoard()
 
   // Setting all squares to nullptr while also
   // deleting any remaining pieces from previous games
-  for (int rank = 0; rank <= totalRanks; ++rank) {
-    for (int file = 0; file <= totalFiles; ++file) {
-      if (this->board[file][rank] != nullptr) {
-        delete this->board[file][rank];
-      }
-      this->board[file][rank] = nullptr;
+  auto deletePiece = [&](int file, int rank) {
+    if (this->board[file][rank] != nullptr) {
+      delete this->board[file][rank];
     }
-  }
+    this->board[file][rank] = nullptr;
+  };
+  forEachSquare(deletePiece);
 
   // Setting up all pieces on their starting positions
   for (int file = 0; file <= piecesPerTeam; ++file) {
     switch (file) {
     case CASTLE:
       this->board[file][blackBackRank] = new Castle("Black");
-      this->board[totalFiles - file][blackBackRank] = new Castle("Black");
+      this->board[MAX_FILE - file][blackBackRank] = new Castle("Black");
       this->board[file][whiteBackRank] = new Castle("White");
-      this->board[totalFiles - file][whiteBackRank] = new Castle("White");
+      this->board[MAX_FILE - file][whiteBackRank] = new Castle("White");
       break;
     case KNIGHT:
       this->board[file][blackBackRank] = new Knight("Black");
-      this->board[totalFiles - file][blackBackRank] = new Knight("Black");
+      this->board[MAX_FILE - file][blackBackRank] = new Knight("Black");
       this->board[file][whiteBackRank] = new Knight("White");
-      this->board[totalFiles - file][whiteBackRank] = new Knight("White");
+      this->board[MAX_FILE - file][whiteBackRank] = new Knight("White");
       break;
     case BISHOP:
       this->board[file][blackBackRank] = new Bishop("Black");
-      this->board[totalFiles - file][blackBackRank] = new Bishop("Black");
+      this->board[MAX_FILE - file][blackBackRank] = new Bishop("Black");
       this->board[file][whiteBackRank] = new Bishop("White");
-      this->board[totalFiles - file][whiteBackRank] = new Bishop("White");
+      this->board[MAX_FILE - file][whiteBackRank] = new Bishop("White");
       break;
     case QUEEN:
       this->board[file][blackBackRank] = new Queen("Black");
@@ -149,7 +152,7 @@ void ChessBoard::resetBoard()
       this->board[file][whiteBackRank] = new King("White");
       break;
     case PAWN:
-      for (int tmpFile = 0; tmpFile <= totalFiles; ++tmpFile) {
+      for (int tmpFile = 0; tmpFile <= MAX_FILE; ++tmpFile) {
         this->board[tmpFile][blackBackRank - 1] = new Pawn("Black");
         this->board[tmpFile][whiteBackRank + 1] = new Pawn("White");
       }

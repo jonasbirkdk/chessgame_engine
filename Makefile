@@ -1,4 +1,4 @@
-CC = g++ -std=c++17 -Wpedantic
+CC = g++ -Wpedantic
 target = chess
 
 DIRS = Bishop Castle ChessBoard King Knight Pawn Queen helper

@@ -1,7 +1,5 @@
 #include "helper.h"
 #include "../macros.h"
-#include <iostream>
-#include <functional>
 
 void printBoard(Piece* board[8][8])
 {
@@ -29,11 +27,18 @@ void printBoard(Piece* board[8][8])
   }
 }
 
-void forEachSquare(Piece* board[8][8], std::function<void(Piece* [8][8])>& func)
+void forEachSquare(
+    std::function<void(int file, int rank)> const& func, bool optional)
 {
-  for (int rank = 0; rank <= 7; ++rank) {
-    for (int file = 0; file <= 7; ++file) {
-      func(board);
+  for (int file = 0; file <= MAX_FILE; ++file) {
+    for (int rank = 0; rank <= MAX_RANK; ++rank) {
+      func(file, rank);
+      if (optional == true) {
+        break;
+      }
+    }
+    if (optional == true) {
+      break;
     }
   }
 }
@@ -53,7 +58,7 @@ void printMove(
   // If destSquare is not empty, print the piece we capture. As this function
   // comes with the precondition that moves printed are valid, the destSquare
   // will have an opponent piece if not empty
-  if (!squareEmpty(destSquare, board)) {
+  if (board[destFile][destRank] != nullptr) {
     std::cout << " capturing " << board[destFile][destRank]->getColour()
               << "'s " << board[destFile][destRank]->getType();
   }
@@ -119,11 +124,11 @@ bool inputValid(std::string square)
   int file = fileToInt(square);
   int rank = rankToInt(square);
 
-  if (file < 0 || file > 7) {
+  if (file < 0 || file > MAX_FILE) {
     return false;
   }
 
-  if (rank < 0 || rank > 7) {
+  if (rank < 0 || rank > MAX_RANK) {
     return false;
   }
 
@@ -162,37 +167,12 @@ bool sideToSideMove(std::string srcSquare, std::string destSquare)
   return false;
 }
 
-bool friendlyFire(
-    std::string srcSquare, std::string destSquare, Piece* board[8][8])
-{
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
-
-  if (squareEmpty(srcSquare, board) || squareEmpty(destSquare, board)) {
-    return false;
-  }
-
-  return (board[srcFile][srcRank]->getColour()
-      == board[destFile][destRank]->getColour());
-}
-
-bool squareEmpty(std::string square, Piece* board[8][8])
-{
-  int file = fileToInt(square);
-  int rank = rankToInt(square);
-
-  return (board[file][rank] == nullptr);
-}
-
 void copyArray(Piece* destBoard[8][8], Piece* srcBoard[8][8])
 {
-  for (int file = 0; file <= 7; ++file) {
-    for (int rank = 0; rank <= 7; ++rank) {
-      destBoard[file][rank] = srcBoard[file][rank];
-    }
-  }
+  auto copyElement = [&](int rank, int file) {
+    destBoard[file][rank] = srcBoard[file][rank];
+  };
+  forEachSquare(copyElement);
 }
 
 bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
@@ -202,34 +182,23 @@ bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
   int destFile = fileToInt(destSquare);
   int destRank = rankToInt(destSquare);
 
-  int currentFile;
-  if (srcFile < destFile) {
-    currentFile = srcFile + 1;
-  } else if (srcFile > destFile) {
-    currentFile = srcFile - 1;
-  } else {
-    currentFile = srcFile;
-  }
-
-  int currentRank;
-  if (srcRank < destRank) {
-    currentRank = srcRank + 1;
-  } else if (srcRank > destRank) {
-    currentRank = srcRank - 1;
-  } else {
-    currentRank = srcRank;
-  }
-
   // Values to add to current file / rank in while loop.
   // Will be +1 if sourceFile(or rank) is
   // lower than destFile(or rank); -1 if
   // greater than destFile(or rank); 0 if
   // sourceFile (or rank) equals destFile (or rank)
-  int fileValueChange = currentFile - srcFile;
-  int rankValueChange = currentRank - srcRank;
+  int fileValueChange = (srcFile == destFile)
+      ? 0
+      : abs(destFile - srcFile) / (destFile - srcFile);
+  int rankValueChange = (srcRank == destRank)
+      ? 0
+      : abs(destRank - srcRank) / (destRank - srcRank);
+
+  int currentFile = srcFile + fileValueChange;
+  int currentRank = srcRank + rankValueChange;
 
   while (currentFile != destFile || currentRank != destRank) {
-    if (!squareEmpty(integersToSquare(currentFile, currentRank), board)) {
+    if (board[currentFile][currentRank] != nullptr) {
       return false;
     }
     currentFile += fileValueChange;
@@ -242,62 +211,85 @@ bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
 bool inCheck(std::string kingColour, Piece* board[8][8])
 {
   std::string kingPosition;
-  for (int file = 0; file <= 7; ++file) {
-    for (int rank = 0; rank <= 7; ++rank) {
-      if (board[file][rank] != nullptr) {
-        if (board[file][rank]->getType() == "King"
-            && board[file][rank]->getColour() == kingColour) {
-          kingPosition = integersToSquare(file, rank);
-          break;
-        }
-      }
-    }
-  }
+  bool kingFound = false;
+  bool inCheck = false;
 
-  for (int file = 0; file <= 7; ++file) {
-    for (int rank = 0; rank <= 7; ++rank) {
-      std::string currentSquare = integersToSquare(file, rank);
-      if (!squareEmpty(currentSquare, board)) {
-        if (!friendlyFire(currentSquare, kingPosition, board)) {
-          if (board[file][rank]->validMove(
-                  currentSquare, kingPosition, board)) {
-            return true;
-          }
-        }
-      }
+  auto findKing = [&](int file, int rank) {
+    if (board[file][rank] == nullptr) {
+      return;
     }
-  }
+    if (board[file][rank]->getType() != "King") {
+      return;
+    }
+    if (board[file][rank]->getColour() == kingColour) {
+      kingPosition = integersToSquare(file, rank);
+      kingFound = true;
+    }
+  };
+  forEachSquare(findKing, kingFound);
 
-  return false;
+  auto tryKingAttack = [&](int file, int rank) {
+    std::string currentSquare = integersToSquare(file, rank);
+    if (board[file][rank] == nullptr) {
+      return;
+    }
+    if (board[file][rank]->getColour() == kingColour) {
+      return;
+    }
+    if (!board[file][rank]->validMove(currentSquare, kingPosition, board)) {
+      return;
+    }
+    inCheck = true;
+  };
+  forEachSquare(tryKingAttack, inCheck);
+
+  return inCheck;
 }
 
 bool noValidMoves(std::string teamColour, Piece* board[8][8])
 {
-  for (int srcFile = 0; srcFile <= 7; ++srcFile) {
-    for (int srcRank = 0; srcRank <= 7; ++srcRank) {
-      std::string srcSquare = integersToSquare(srcFile, srcRank);
-      if (board[srcFile][srcRank] != nullptr) {
-        if (board[srcFile][srcRank]->getColour() == teamColour) {
-          for (int destFile = 0; destFile <= 7; ++destFile) {
-            for (int destRank = 0; destRank <= 7; ++destRank) {
-              std::string destSquare = integersToSquare(destFile, destRank);
-              if (!friendlyFire(srcSquare, destSquare, board)) {
-                if (board[srcFile][srcRank]->validMove(
-                        srcSquare, destSquare, board)) {
-                  Piece* tmpBoard[8][8];
-                  copyArray(tmpBoard, board);
-                  tmpBoard[destFile][destRank] = tmpBoard[srcFile][srcRank];
-                  tmpBoard[srcFile][srcRank] = nullptr;
-                  if (!inCheck(teamColour, tmpBoard)) {
-                    return false;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  std::string srcSquare;
+  std::string destSquare;
+  bool validMoves = false;
+
+  auto attemptMove = [&](int destFile, int destRank) {
+    if (board[destFile][destRank] == nullptr) {
+      destSquare = integersToSquare(destFile, destRank);
+    } else if (board[destFile][destRank]->getColour() == teamColour) {
+      return;
+    } else {
+      destSquare = integersToSquare(destFile, destRank);
     }
-  }
-  return true;
+
+    int srcFile = fileToInt(srcSquare);
+    int srcRank = rankToInt(srcSquare);
+    if (!board[srcFile][srcRank]->validMove(srcSquare, destSquare, board)) {
+      return;
+    }
+
+    Piece* tmpBoard[8][8];
+    copyArray(tmpBoard, board);
+    tmpBoard[destFile][destRank] = tmpBoard[srcFile][srcRank];
+    tmpBoard[srcFile][srcRank] = nullptr;
+    if (inCheck(teamColour, tmpBoard)) {
+      return;
+    }
+
+    validMoves = true;
+  };
+
+  auto checkValidMove = [&](int srcFile, int srcRank) {
+    if (board[srcFile][srcRank] == nullptr) {
+      return;
+    }
+    if (board[srcFile][srcRank]->getColour() != teamColour) {
+      return;
+    }
+    srcSquare = integersToSquare(srcFile, srcRank);
+
+    forEachSquare(attemptMove, validMoves);
+  };
+  forEachSquare(checkValidMove, validMoves);
+
+  return !validMoves;
 }
