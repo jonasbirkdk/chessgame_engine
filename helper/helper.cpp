@@ -59,8 +59,8 @@ void printMove(
   // comes with the precondition that moves printed are valid, the destSquare
   // will have an opponent piece if not empty
   if (board[destFile][destRank] != nullptr) {
-    std::cout << " capturing " << board[destFile][destRank]->getColour()
-              << "'s " << board[destFile][destRank]->getType();
+    std::cout << " taking " << board[destFile][destRank]->getColour() << "'s "
+              << board[destFile][destRank]->getType();
   }
   std::cout << std::endl;
 }
