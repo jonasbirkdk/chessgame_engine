@@ -4,10 +4,8 @@
 #include <iostream>
 
 class Castle : public Piece {
-    std::string colour;
-
 public:
-    Castle(std::string colour);
-    bool validMove(std::string srcSquare, std::string destSquare, int pieceType,
-        int board[8][8]);
+    Castle(std::string colour, std::string type = "Castle");
+    ~Castle();
+    bool validMove(std::string srcSquare, std::string destSquare, Piece* board[8][8]);
 };

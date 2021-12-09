@@ -3,33 +3,19 @@
 #include "../macros.h"
 #include <iostream>
 
-Pawn::Pawn(std::string colour)
-    : colour(colour) {};
+Pawn::Pawn(std::string colour, std::string type)
+    : Piece(colour, type) {};
 
-bool Pawn::validMove(std::string srcSquare, std::string destSquare, int pieceType,
-    int board[8][8])
+Pawn::~Pawn() {};
+
+bool Pawn::validMove(std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
     int sourceFile = fileToInt(srcSquare);
     int sourceRank = rankToInt(srcSquare);
     int destFile = fileToInt(destSquare);
     int destRank = rankToInt(destSquare);
 
-    // Check that srcSquare or destSquare are on the board
-    if (!inputValid(srcSquare) || !inputValid(destSquare)) {
-        return false;
-    }
-
-    // Handle case where move may be valid, but pieceType input is invalid
-    if (pieceType != B_PAWN && pieceType != W_PAWN) {
-        return false;
-    }
-
-    // Check destSquare does not have piece of own colour
-    if (friendlyFire(destSquare, pieceType, board)) {
-        return false;
-    }
-
-    if (pieceType == B_PAWN) {
+    if (this->getColour() == "Black") {
         // Check direction along rank is valid
         if ((sourceRank - destRank) <= 0) {
             return false;
@@ -61,7 +47,8 @@ bool Pawn::validMove(std::string srcSquare, std::string destSquare, int pieceTyp
         }
         return false;
     }
-    if (pieceType == W_PAWN) {
+
+    if (this->getColour() == "White") {
         // Check direction along rank is valid
         if ((sourceRank - destRank) >= 0) {
             return false;

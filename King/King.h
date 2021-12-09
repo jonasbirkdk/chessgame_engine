@@ -5,8 +5,7 @@
 
 class King : public Piece {
 public:
-    std::string colour;
-    King(std::string colour);
-    bool validMove(std::string srcSquare, std::string destSquare, int pieceType,
-        int board[8][8]);
+    King(std::string colour, std::string type = "King");
+    ~King();
+    bool validMove(std::string srcSquare, std::string destSquare, Piece* board[8][8]);
 };

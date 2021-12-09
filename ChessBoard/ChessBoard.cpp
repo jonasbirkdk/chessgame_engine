@@ -10,266 +10,135 @@
 
 ChessBoard::ChessBoard()
 {
-    // int totalFiles = 7;
-    // int totalRanks = 7;
+  int totalFiles = 7;
+  int totalRanks = 7;
 
-    // for (int rank = 0; rank <= totalRanks; ++rank) {
-    //     for (int file = 0; file <= totalFiles; ++file) {
-
-    //         ptrBoard[file][rank] = nullptr;
-    //     }
-    // }
-    // this->resetPtrBoard();
-    // /* ---------------------------------------- */
-    this->resetBoard();
-    for (auto i = 0; i < TOTAL_PIECES; ++i) {
-        switch (i) {
-        case W_KING:
-        case B_KING:
-            pieceArray[i] = new King("na");
-            break;
-        case W_QUEEN:
-        case B_QUEEN:
-            pieceArray[i] = new Queen("na");
-            break;
-        case W_BISHOP:
-        case B_BISHOP:
-            pieceArray[i] = new Bishop("na");
-            break;
-        case W_KNIGHT:
-        case B_KNIGHT:
-            pieceArray[i] = new Knight("na");
-            break;
-        case W_CASTLE:
-        case B_CASTLE:
-            pieceArray[i] = new Castle("na");
-            break;
-        case W_PAWN:
-        case B_PAWN:
-            pieceArray[i] = new Pawn("na");
-            break;
-        }
+  for (int rank = 0; rank <= totalRanks; ++rank) {
+    for (int file = 0; file <= totalFiles; ++file) {
+      board[file][rank] = nullptr;
     }
+  }
+  this->resetBoard();
 };
 
-void ChessBoard::resetPtrBoard()
+void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
 {
-    int totalFiles = 7;
-    int totalRanks = 7;
-    int piecesPerTeam = 5;
-    int blackBackRank = 7;
-    int whiteBackRank = 0;
+  int srcFile = fileToInt(srcSquare);
+  int srcRank = rankToInt(srcSquare);
+  int destFile = fileToInt(destSquare);
+  int destRank = rankToInt(destSquare);
 
-    for (int rank = 0; rank <= totalRanks; ++rank) {
-        for (int file = 0; file <= totalFiles; ++file) {
-            if (ptrBoard[file][rank] != nullptr) {
-                delete ptrBoard[file][rank];
-            }
-            ptrBoard[file][rank] = nullptr;
-        }
-    }
+  // Check that srcSquare and destSquare are on the board
+  if (!inputValid(srcSquare) || !inputValid(destSquare)) {
+    printErrorMessage(srcSquare, destSquare, this->board, INVALID_INPUT);
+    return;
+  }
 
-    for (int file = 0; file <= piecesPerTeam; ++file) {
-        switch (file) {
-        case CASTLE:
-            ptrBoard[file][blackBackRank] = new Castle("black");
-            ptrBoard[totalFiles - file][blackBackRank] = new Castle("black");
-            ptrBoard[file][whiteBackRank] = new Castle("white");
-            ptrBoard[totalFiles - file][whiteBackRank] = new Castle("white");
-            break;
-        case KNIGHT:
-            ptrBoard[file][blackBackRank] = new Knight("black");
-            ptrBoard[totalFiles - file][blackBackRank] = new Knight("black");
-            ptrBoard[file][whiteBackRank] = new Knight("white");
-            ptrBoard[totalFiles - file][whiteBackRank] = new Knight("white");
-            break;
-        case BISHOP:
-            ptrBoard[file][blackBackRank] = new Bishop("black");
-            ptrBoard[totalFiles - file][blackBackRank] = new Bishop("black");
-            ptrBoard[file][whiteBackRank] = new Bishop("white");
-            ptrBoard[totalFiles - file][whiteBackRank] = new Bishop("white");
-            break;
-        case QUEEN:
-            ptrBoard[file][blackBackRank] = new Queen("black");
-            ptrBoard[file][whiteBackRank] = new Queen("white");
-            break;
-        case KING:
-            ptrBoard[file][blackBackRank] = new King("black");
-            ptrBoard[file][whiteBackRank] = new King("white");
-            break;
-        case PAWN:
-            for (int tmpFile = 0; tmpFile < totalFiles; ++tmpFile) {
-                ptrBoard[tmpFile][blackBackRank - 1] = new Pawn("black");
-                ptrBoard[tmpFile][whiteBackRank + 1] = new Pawn("white");
-            }
-        }
-    }
-}
+  // Checking srcSquare is not empty
+  if (squareEmpty(srcSquare, this->board)) {
+    printErrorMessage(srcSquare, destSquare, this->board, EMPTY_SOURCE_SQUARE);
+    return;
+  }
 
-bool ChessBoard::kingInCheck(std::string srcSquare, std::string destSquare, int kingID)
-{
-    int sourceFile = fileToInt(srcSquare);
-    int sourceRank = rankToInt(srcSquare);
-    int destFile = fileToInt(destSquare);
-    int destRank = rankToInt(destSquare);
-    int tmpBoard[8][8];
+  // Checking that srcSquare has a valid piece (i.e., white
+  // piece if white's turn)
+  if (this->board[srcFile][srcRank]->getColour() != nextUp) {
+    printErrorMessage(srcSquare, destSquare, this->board, NOT_YOUR_TURN);
+    return;
+  }
 
-    copyArray(tmpBoard, this->board);
-    tmpBoard[destFile][destRank] = tmpBoard[sourceFile][sourceRank];
-    tmpBoard[sourceFile][sourceRank] = -1;
+  // Check destSquare does not have piece of own colour
+  if (friendlyFire(srcSquare, destSquare, board)) {
+    printErrorMessage(srcSquare, destSquare, this->board, FRIENDLY_FIRE);
+    return;
+  }
 
-    std::string kingPosition;
-    for (int file = 0; file <= 7; ++file) {
-        for (int rank = 0; rank <= 7; ++rank) {
-            if (tmpBoard[file][rank] == kingID) {
-                kingPosition = integersToSquare(file, rank);
-                break;
-            }
-        }
-    }
+  // Check that move does not put or leave own king in check
+  Piece* tmpBoard[8][8];
+  copyArray(tmpBoard, board);
+  tmpBoard[destFile][destRank] = tmpBoard[srcFile][srcRank];
+  tmpBoard[srcFile][srcRank] = nullptr;
+  if (inCheck(nextUp, tmpBoard)) {
+    printErrorMessage(srcSquare, destSquare, this->board, OWN_KING_IN_CHECK);
+    return;
+  }
 
-    for (int file = 0; file <= 7; ++file) {
-        for (int rank = 0; rank <= 7; ++rank) {
-            std::string currentSquare = integersToSquare(file, rank);
-            if (!squareEmpty(currentSquare, tmpBoard)) {
-                int pieceType = tmpBoard[file][rank];
-                if (this->pieceArray[pieceType]->validMove(
-                        currentSquare, kingPosition, pieceType, tmpBoard)) {
-                    return true;
-                }
-            }
-        }
-    }
+  if (this->board[srcFile][srcRank]->validMove(
+          srcSquare, destSquare, this->board)) {
 
-    return false;
-}
+    printMove(srcSquare, destSquare, this->board);
 
-bool ChessBoard::noValidMoves(int kingID)
-{
-    int tmpBoard[8][8];
-    std::string teamColour = (kingID == B_KING) ? "Black" : "White";
-    copyArray(tmpBoard, this->board);
+    this->board[destFile][destRank] = this->board[srcFile][srcRank];
+    this->board[srcFile][srcRank] = nullptr;
 
-    for (int srcFile = 0; srcFile <= 7; ++srcFile) {
-        for (int srcRank = 0; srcRank <= 7; ++srcRank) {
-            std::string srcSquare = integersToSquare(srcFile, srcRank);
-            if (getPieceColour(srcSquare, tmpBoard) == teamColour) {
-                int pieceType = tmpBoard[srcFile][srcRank];
-                for (int destFile = 0; destFile <= 7; ++destFile) {
-                    for (int destRank = 0; destRank <= 7; ++destRank) {
-                        std::string destSquare = integersToSquare(destFile, destRank);
-                        if (this->pieceArray[pieceType]->validMove(
-                                srcSquare, destSquare, pieceType, tmpBoard)) {
-                            if (!kingInCheck(srcSquare, destSquare, kingID)) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
-void ChessBoard::
-    submitMove(std::string srcSquare, std::string destSquare)
-{
-    int sourceFile = fileToInt(srcSquare);
-    int sourceRank = rankToInt(srcSquare);
-    int destFile = fileToInt(destSquare);
-    int destRank = rankToInt(destSquare);
-    int pieceType = this->board[sourceFile][sourceRank];
+    this->nextUp = (this->nextUp == "White") ? "Black" : "White";
 
-    // Checking that srcSquare has a valid piece (i.e., white
-    // piece if white's turn)
-    if (getPieceColour(srcSquare, this->board) != nextUp) {
-        if (squareEmpty(srcSquare, this->board)) {
-            std::cout << "There is no piece in position " << srcSquare << std::endl;
-            return;
-        }
-        std::cout << "It is not ";
-        if (nextUp == "White") {
-            std::cout << "Black";
-        } else {
-            std::cout << "White";
-        }
-        std::cout << "'s turn to move!" << std::endl;
-        return;
-    }
+    return;
 
-    std::cout << "Made it this far" << std::endl;
-
-    if (this->pieceArray[pieceType]->validMove(
-            srcSquare, destSquare, pieceType, this->board)) {
-        int ownKingID = (getPieceColour(srcSquare, this->board) == "White")
-            ? W_KING
-            : B_KING;
-        if (!kingInCheck(srcSquare, destSquare, ownKingID)) {
-            std::cout << nextUp << "'s " << getPieceType(srcSquare, this->board)
-                      << " moves from " << srcSquare << " to " << destSquare;
-            if (!squareEmpty(destSquare, this->board)) {
-                std::cout << " capturing " << getPieceColour(destSquare, this->board)
-                          << "'s " << getPieceType(destSquare, this->board);
-            }
-            std::cout << std::endl;
-            this->nextUp = (getPieceColour(srcSquare, this->board) == "White")
-                ? "Black"
-                : "White";
-            int opponentKingID = (ownKingID == W_KING) ? B_KING : W_KING;
-            if (kingInCheck(srcSquare, destSquare, opponentKingID)) {
-                std::cout << nextUp << " is in check";
-            }
-            this->board[destFile][destRank] = this->board[sourceFile][sourceRank];
-            this->board[sourceFile][sourceRank] = -1;
-            if (noValidMoves(opponentKingID)) {
-                std::cout << "mate";
-            }
-            return;
-        } else {
-            std::cout << nextUp << "'s " << getPieceType(srcSquare, this->board)
-                      << " cannot move from " << srcSquare << " to " << destSquare;
-            std::cout << std::endl;
-            return;
-        }
-    } else {
-        std::cout << nextUp << "'s " << getPieceType(srcSquare, this->board)
-                  << " cannot move from " << srcSquare << " to " << destSquare;
-        std::cout << std::endl;
-    }
+  } else {
+    printErrorMessage(srcSquare, destSquare, this->board, PIECE_RULES_BROKEN);
+    return;
+  }
 }
 
 void ChessBoard::resetBoard()
 {
-    this->nextUp = "White";
+  int totalFiles = 7;
+  int totalRanks = 7;
+  int piecesPerTeam = 5;
+  int blackBackRank = 7;
+  int whiteBackRank = 0;
 
-    board[0][0] = W_CASTLE;
-    board[1][0] = W_KNIGHT;
-    board[2][0] = W_BISHOP;
-    board[3][0] = W_QUEEN;
-    board[4][0] = W_KING;
-    board[5][0] = W_BISHOP;
-    board[6][0] = W_KNIGHT;
-    board[7][0] = W_CASTLE;
+  std::cout << "A new chess game is started!" << std::endl;
 
-    board[0][7] = B_CASTLE;
-    board[1][7] = B_KNIGHT;
-    board[2][7] = B_BISHOP;
-    board[3][7] = B_QUEEN;
-    board[4][7] = B_KING;
-    board[5][7] = B_BISHOP;
-    board[6][7] = B_KNIGHT;
-    board[7][7] = B_CASTLE;
+  // Setting starting team colour to White
+  this->nextUp = "White";
 
-    for (int file = 0; file <= 7; ++file) {
-        board[file][6] = B_PAWN;
-        board[file][1] = W_PAWN;
+  // Setting all squares to nullptr while also
+  // deleting any remaining pieces from previous games
+  for (int rank = 0; rank <= totalRanks; ++rank) {
+    for (int file = 0; file <= totalFiles; ++file) {
+      if (this->board[file][rank] != nullptr) {
+        delete this->board[file][rank];
+      }
+      this->board[file][rank] = nullptr;
     }
+  }
 
-    for (int rank = 2; rank <= 5; ++rank) {
-        for (int file = 0; file <= 7; ++file) {
-            board[file][rank] = -1;
-        }
+  // Setting up all pieces on their starting positions
+  for (int file = 0; file <= piecesPerTeam; ++file) {
+    switch (file) {
+    case CASTLE:
+      this->board[file][blackBackRank] = new Castle("Black");
+      this->board[totalFiles - file][blackBackRank] = new Castle("Black");
+      this->board[file][whiteBackRank] = new Castle("White");
+      this->board[totalFiles - file][whiteBackRank] = new Castle("White");
+      break;
+    case KNIGHT:
+      this->board[file][blackBackRank] = new Knight("Black");
+      this->board[totalFiles - file][blackBackRank] = new Knight("Black");
+      this->board[file][whiteBackRank] = new Knight("White");
+      this->board[totalFiles - file][whiteBackRank] = new Knight("White");
+      break;
+    case BISHOP:
+      this->board[file][blackBackRank] = new Bishop("Black");
+      this->board[totalFiles - file][blackBackRank] = new Bishop("Black");
+      this->board[file][whiteBackRank] = new Bishop("White");
+      this->board[totalFiles - file][whiteBackRank] = new Bishop("White");
+      break;
+    case QUEEN:
+      this->board[file][blackBackRank] = new Queen("Black");
+      this->board[file][whiteBackRank] = new Queen("White");
+      break;
+    case KING:
+      this->board[file][blackBackRank] = new King("Black");
+      this->board[file][whiteBackRank] = new King("White");
+      break;
+    case PAWN:
+      for (int tmpFile = 0; tmpFile <= totalFiles; ++tmpFile) {
+        this->board[tmpFile][blackBackRank - 1] = new Pawn("Black");
+        this->board[tmpFile][whiteBackRank + 1] = new Pawn("White");
+      }
     }
-
-    std::cout << "A new chess game is started!" << std::endl;
+  }
 }

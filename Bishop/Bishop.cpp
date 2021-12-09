@@ -3,27 +3,13 @@
 #include "../macros.h"
 #include <iostream>
 
-Bishop::Bishop(std::string colour)
-    : colour(colour) {};
+Bishop::Bishop(std::string colour, std::string type)
+    : Piece(colour, type) {};
 
-bool Bishop::validMove(std::string srcSquare, std::string destSquare, int pieceType,
-    int board[8][8])
+Bishop::~Bishop() {};
+
+bool Bishop::validMove(std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
-    // Check that srcSquare or destSquare are on the board
-    if (!inputValid(srcSquare) || !inputValid(destSquare)) {
-        return false;
-    }
-
-    // Handle case where move may be valid, but pieceType input is invalid
-    if (pieceType != B_BISHOP && pieceType != W_BISHOP) {
-        return false;
-    }
-
-    // Check destSquare does not have piece of own colour
-    if (friendlyFire(destSquare, pieceType, board)) {
-        return false;
-    }
-
     // Check that move is diagonal or sideToSide
     if (!diagonalMove(srcSquare, destSquare)
         && !sideToSideMove(srcSquare, destSquare)) {

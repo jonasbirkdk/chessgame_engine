@@ -4,10 +4,8 @@
 #include <iostream>
 
 class Pawn : public Piece {
-    std::string colour;
-
 public:
-    Pawn(std::string colour);
-    bool validMove(std::string srcSquare, std::string destSquare, int pieceType,
-        int board[8][8]);
+    Pawn(std::string colour, std::string type = "Pawn");
+    ~Pawn();
+    bool validMove(std::string srcSquare, std::string destSquare, Piece* board[8][8]);
 };

@@ -3,27 +3,13 @@
 #include "../macros.h"
 #include <iostream>
 
-Castle::Castle(std::string colour)
-    : colour(colour) {};
+Castle::Castle(std::string colour, std::string type)
+    : Piece(colour, type) {};
 
-bool Castle::validMove(std::string srcSquare, std::string destSquare, int pieceType,
-    int board[8][8])
+Castle::~Castle() {};
+
+bool Castle::validMove(std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
-    // Check that srcSquare or destSquare are on the board
-    if (!inputValid(srcSquare) || !inputValid(destSquare)) {
-        return false;
-    }
-
-    // Handle case where move may be valid, but pieceType input is invalid
-    if (pieceType != B_CASTLE && pieceType != W_CASTLE) {
-        return false;
-    }
-
-    // Check destSquare does not have piece of own colour
-    if (friendlyFire(destSquare, pieceType, board)) {
-        return false;
-    }
-
     // Check that move is sideToSide
     if (!sideToSideMove(srcSquare, destSquare)) {
         return false;

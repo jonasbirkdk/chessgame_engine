@@ -5,16 +5,11 @@
 #include <iostream>
 
 class ChessBoard {
-public:
-    int board[8][8];
-    Piece* ptrBoard[8][8];
-    Piece* pieceArray[TOTAL_PIECES];
-    std::string nextUp = "White";
+  public:
+  Piece* board[8][8];
+  std::string nextUp;
 
-    ChessBoard();
-    void resetPtrBoard();
-    bool kingInCheck(std::string srcSquare, std::string destSquare, int kingID);
-    bool noValidMoves(int kingID);
-    void submitMove(std::string srcSquare, std::string destSquare);
-    void resetBoard();
+  ChessBoard();
+  void resetBoard();
+  void submitMove(std::string srcSquare, std::string destSquare);
 };
