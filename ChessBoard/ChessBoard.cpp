@@ -13,11 +13,14 @@ ChessBoard::ChessBoard()
   int totalFiles = 7;
   int totalRanks = 7;
 
-  for (int rank = 0; rank <= totalRanks; ++rank) {
-    for (int file = 0; file <= totalFiles; ++file) {
-      board[file][rank] = nullptr;
-    }
-  }
+  auto lambda = [](Piece* board[8][8]) { this->board[file][rank] = nullptr; };
+  forEachSquare(this->board, lambda);
+
+  // for (int rank = 0; rank <= totalRanks; ++rank) {
+  //   for (int file = 0; file <= totalFiles; ++file) {
+  //     board[file][rank] = nullptr;
+  //   }
+  // }
   this->resetBoard();
 };
 
@@ -65,7 +68,6 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
 
   if (this->board[srcFile][srcRank]->validMove(
           srcSquare, destSquare, this->board)) {
-
     printMove(srcSquare, destSquare, this->board);
 
     this->board[destFile][destRank] = this->board[srcFile][srcRank];
@@ -73,8 +75,20 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
 
     this->nextUp = (this->nextUp == "White") ? "Black" : "White";
 
-    return;
+    if (inCheck(this->nextUp, this->board)) {
+      std::cout << this->nextUp << " is in check";
+      if (noValidMoves(this->nextUp, board)) {
+        std::cout << "mate" << std::endl;
+      } else {
+        std::cout << std::endl;
+      }
+    } else {
+      if (noValidMoves(this->nextUp, board)) {
+        std::cout << "Game ended in a stalemate" << std::endl;
+      }
+    }
 
+    return;
   } else {
     printErrorMessage(srcSquare, destSquare, this->board, PIECE_RULES_BROKEN);
     return;

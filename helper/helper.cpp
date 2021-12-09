@@ -1,6 +1,7 @@
 #include "helper.h"
 #include "../macros.h"
 #include <iostream>
+#include <functional>
 
 void printBoard(Piece* board[8][8])
 {
@@ -28,6 +29,15 @@ void printBoard(Piece* board[8][8])
   }
 }
 
+void forEachSquare(Piece* board[8][8], std::function<void(Piece* [8][8])>& func)
+{
+  for (int rank = 0; rank <= 7; ++rank) {
+    for (int file = 0; file <= 7; ++file) {
+      func(board);
+    }
+  }
+}
+
 void printMove(
     std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
@@ -48,24 +58,6 @@ void printMove(
               << "'s " << board[destFile][destRank]->getType();
   }
   std::cout << std::endl;
-
-  // Print if move puts opponent king in check
-  std::string opponentColour
-      = (board[srcFile][srcRank]->getColour() == "White") ? "Black" : "White";
-
-  Piece* tmpBoard[8][8];
-  copyArray(tmpBoard, board);
-  tmpBoard[destFile][destRank] = tmpBoard[srcFile][srcRank];
-  tmpBoard[srcFile][srcRank] = nullptr;
-  if (inCheck(opponentColour, tmpBoard)) {
-    std::cout << opponentColour << " is in check";
-
-    if (noValidMoves(opponentColour, tmpBoard)) {
-      std::cout << "mate" << std::endl;
-    } else {
-      std::cout << std::endl;
-    }
-  }
 }
 
 void printErrorMessage(std::string srcSquare, std::string destSquare,

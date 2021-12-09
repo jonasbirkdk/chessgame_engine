@@ -5,6 +5,9 @@
 
 void printBoard(Piece* board[8][8]);
 
+void forEachSquare(
+    Piece* board[8][8], std::function<void(Piece* [8][8])>& func);
+
 void printMove(
     std::string srcSquare, std::string destSquare, Piece* board[8][8]);
 
