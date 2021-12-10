@@ -1,6 +1,6 @@
-CC = g++ -Wpedantic
+CC = clang++ -std=c++17 -Wall
 target = chess
-
+	
 PIECES = Bishop Castle King Knight Pawn Queen helper
 PIECES.o = $(foreach var, $(PIECES), $(var)/$(var).o)
 
@@ -13,4 +13,4 @@ obj:
 	$(foreach var, $(PIECES), $(CC) -c $(var).cpp -o $(var).o;)
 
 clean:
-	rm -rf *.o $(DIRS.o) $(target)
+	rm -rf *.o $(PIECES.o) $(target)

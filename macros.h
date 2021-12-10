@@ -20,3 +20,4 @@
 #define NOT_YOUR_TURN 3
 #define FRIENDLY_FIRE 4
 #define PIECE_RULES_BROKEN 5
+#define GAME_OVER

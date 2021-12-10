@@ -36,6 +36,12 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
   int destFile = fileToInt(destSquare);
   int destRank = rankToInt(destSquare);
 
+  // Check that game has not ended
+  if (this->gameOver == true) {
+    printErrorMessage(srcSquare, destSquare, this->board, GAME_OVER);
+    return;
+  }
+
   // Check that srcSquare and destSquare are on the board
   if (!inputValid(srcSquare) || !inputValid(destSquare)) {
     printErrorMessage(srcSquare, destSquare, this->board, INVALID_INPUT);
@@ -86,12 +92,14 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
       std::cout << this->nextUp << " is in check";
       if (noValidMoves(this->nextUp, board)) {
         std::cout << "mate" << std::endl;
+        this->gameOver = true;
       } else {
         std::cout << std::endl;
       }
     } else {
       if (noValidMoves(this->nextUp, board)) {
         std::cout << "Game ended in a stalemate" << std::endl;
+        this->gameOver = true;
       }
     }
     return;
@@ -109,7 +117,7 @@ void ChessBoard::resetBoard()
 
   std::cout << "A new chess game is started!" << std::endl;
 
-  // Setting starting team colour to White
+  this->gameOver = false;
   this->nextUp = "White";
 
   // Setting all squares to nullptr while also

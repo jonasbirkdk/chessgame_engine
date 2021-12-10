@@ -1,108 +1,19 @@
 #include "helper.h"
 #include "../macros.h"
 
-void printBoard(Piece* board[8][8])
-{
-  for (int rank = 7; rank >= 0; --rank) {
-    for (int file = 0; file <= 7; ++file) {
-      int someInt = 10;
-      int strLen;
-      if (board[file][rank] != nullptr) {
-        strLen = board[file][rank]->getType().length();
-      } else {
-        strLen = 7;
-      }
-      int i = 0;
-      if (board[file][rank] != nullptr) {
-        std::cout << board[file][rank]->getType();
-      } else {
-        std::cout << "nullptr";
-      }
-      while (i < ((someInt - strLen))) {
-        std::cout << " ";
-        ++i;
-      }
-    }
-    std::cout << std::endl << std::endl;
-  }
-}
-
 void forEachSquare(
     std::function<void(int file, int rank)> const& func, bool optional)
 {
   for (int file = 0; file <= MAX_FILE; ++file) {
     for (int rank = 0; rank <= MAX_RANK; ++rank) {
-      func(file, rank);
       if (optional == true) {
         break;
       }
+      func(file, rank);
     }
     if (optional == true) {
       break;
     }
-  }
-}
-
-void printMove(
-    std::string srcSquare, std::string destSquare, Piece* board[8][8])
-{
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
-
-  std::cout << board[srcFile][srcRank]->getColour() << "'s "
-            << board[srcFile][srcRank]->getType() << " moves from " << srcSquare
-            << " to " << destSquare;
-
-  // If destSquare is not empty, print the piece we capture. As this function
-  // comes with the precondition that moves printed are valid, the destSquare
-  // will have an opponent piece if not empty
-  if (board[destFile][destRank] != nullptr) {
-    std::cout << " taking " << board[destFile][destRank]->getColour() << "'s "
-              << board[destFile][destRank]->getType();
-  }
-  std::cout << std::endl;
-}
-
-void printErrorMessage(std::string srcSquare, std::string destSquare,
-    Piece* board[8][8], int errorCode)
-{
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
-
-  switch (errorCode) {
-  case INVALID_INPUT:
-    std::cout << "Invalid move: " << srcSquare << " and/or " << destSquare
-              << " are not on the board" << std::endl;
-    break;
-  case EMPTY_SOURCE_SQUARE:
-    std::cout << "There is no piece at position " << srcSquare << std::endl;
-    break;
-  case OWN_KING_IN_CHECK:
-    std::cout << board[srcFile][srcRank]->getColour() << "'s "
-              << board[srcFile][srcRank]->getType() << " cannot move from "
-              << srcSquare << " to " << destSquare;
-    std::cout << std::endl;
-    break;
-  case NOT_YOUR_TURN:
-    std::cout << "It is not " << board[srcFile][srcRank]->getColour()
-              << "'s turn to move!" << std::endl;
-    break;
-  case FRIENDLY_FIRE:
-    std::cout << board[srcFile][srcRank]->getColour() << "'s "
-              << board[srcFile][srcRank]->getType() << " cannot move from "
-              << srcSquare << " to " << destSquare;
-    std::cout << std::endl;
-    break;
-  case PIECE_RULES_BROKEN:
-    std::cout << board[srcFile][srcRank]->getColour() << "'s "
-              << board[srcFile][srcRank]->getType() << " cannot move from "
-              << srcSquare << " to " << destSquare;
-    std::cout << std::endl;
-    break;
   }
 }
 
@@ -182,11 +93,11 @@ bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
   int destFile = fileToInt(destSquare);
   int destRank = rankToInt(destSquare);
 
-  // Values to add to current file / rank in while loop.
-  // Will be +1 if sourceFile(or rank) is
-  // lower than destFile(or rank); -1 if
-  // greater than destFile(or rank); 0 if
-  // sourceFile (or rank) equals destFile (or rank)
+  // Values to add to current file / rank in while loop
+  // (representing the 'direction' a piece is moving in)
+  // Will be +1 if srcFile(or rank) is lower than dstFile(or rank);
+  // -1 if greater than destFile(or rank); 0 if srcFile (or rank)
+  // equals destFile (or rank)
   int fileValueChange = (srcFile == destFile)
       ? 0
       : abs(destFile - srcFile) / (destFile - srcFile);
@@ -226,6 +137,8 @@ bool inCheck(std::string kingColour, Piece* board[8][8])
       kingFound = true;
     }
   };
+  // Adding bool 'kingFound' to forEachSquare() to ensure
+  // for loops break as soon as we find the King
   forEachSquare(findKing, kingFound);
 
   auto tryKingAttack = [&](int file, int rank) {
@@ -241,6 +154,8 @@ bool inCheck(std::string kingColour, Piece* board[8][8])
     }
     inCheck = true;
   };
+  // Adding bool 'inCheck' to forEachSquare() to stop looping
+  // if we know that King is in check
   forEachSquare(tryKingAttack, inCheck);
 
   return inCheck;
@@ -250,6 +165,9 @@ bool noValidMoves(std::string teamColour, Piece* board[8][8])
 {
   std::string srcSquare;
   std::string destSquare;
+  // Bool input to forEachSquare function must initially
+  // be false, hence we set this to 'validMoves' and have
+  // noValidMoves() return (!validMoves)
   bool validMoves = false;
 
   auto attemptMove = [&](int destFile, int destRank) {
@@ -292,4 +210,72 @@ bool noValidMoves(std::string teamColour, Piece* board[8][8])
   forEachSquare(checkValidMove, validMoves);
 
   return !validMoves;
+}
+
+void printMove(
+    std::string srcSquare, std::string destSquare, Piece* board[8][8])
+{
+  int srcFile = fileToInt(srcSquare);
+  int srcRank = rankToInt(srcSquare);
+  int destFile = fileToInt(destSquare);
+  int destRank = rankToInt(destSquare);
+
+  std::cout << board[srcFile][srcRank]->getColour() << "'s "
+            << board[srcFile][srcRank]->getType() << " moves from " << srcSquare
+            << " to " << destSquare;
+
+  // If destSquare is not empty, print the piece we capture. As this function
+  // comes with the precondition that moves printed are valid, the destSquare
+  // will have an opponent piece if not empty
+  if (board[destFile][destRank] != nullptr) {
+    std::cout << " taking " << board[destFile][destRank]->getColour() << "'s "
+              << board[destFile][destRank]->getType();
+  }
+  std::cout << std::endl;
+}
+
+void printErrorMessage(std::string srcSquare, std::string destSquare,
+    Piece* board[8][8], int errorCode)
+{
+  int srcFile = fileToInt(srcSquare);
+  int srcRank = rankToInt(srcSquare);
+  int destFile = fileToInt(destSquare);
+  int destRank = rankToInt(destSquare);
+
+  switch (errorCode) {
+  case INVALID_INPUT:
+    std::cout << "Invalid move: " << srcSquare << " and/or " << destSquare
+              << " are not on the board" << std::endl;
+    break;
+  case EMPTY_SOURCE_SQUARE:
+    std::cout << "There is no piece at position " << srcSquare << std::endl;
+    break;
+  case OWN_KING_IN_CHECK:
+    std::cout << board[srcFile][srcRank]->getColour() << "'s "
+              << board[srcFile][srcRank]->getType() << " cannot move from "
+              << srcSquare << " to " << destSquare;
+    std::cout << std::endl;
+    break;
+  case NOT_YOUR_TURN:
+    std::cout << "It is not " << board[srcFile][srcRank]->getColour()
+              << "'s turn to move!" << std::endl;
+    break;
+  case FRIENDLY_FIRE:
+    std::cout << board[srcFile][srcRank]->getColour() << "'s "
+              << board[srcFile][srcRank]->getType() << " cannot move from "
+              << srcSquare << " to " << destSquare;
+    std::cout << std::endl;
+    break;
+  case PIECE_RULES_BROKEN:
+    std::cout << board[srcFile][srcRank]->getColour() << "'s "
+              << board[srcFile][srcRank]->getType() << " cannot move from "
+              << srcSquare << " to " << destSquare;
+    std::cout << std::endl;
+    break;
+  case GAME_OVER:
+    std::cout << "Game has ended. Cannot submit more moves. Use resetBoard() "
+                 "to start a new game"
+              << std::endl;
+    break;
+  }
 }
