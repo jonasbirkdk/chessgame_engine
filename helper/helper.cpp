@@ -78,7 +78,7 @@ bool sideToSideMove(std::string srcSquare, std::string destSquare)
   return false;
 }
 
-void copyArray(Piece* destBoard[8][8], Piece* srcBoard[8][8])
+void copyBoard(Piece* destBoard[8][8], Piece* srcBoard[8][8])
 {
   auto copyElement = [&](int rank, int file) {
     destBoard[file][rank] = srcBoard[file][rank];
