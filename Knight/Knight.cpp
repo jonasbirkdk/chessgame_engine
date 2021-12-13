@@ -3,8 +3,10 @@
 #include "../macros.h"
 #include <iostream>
 
-Knight::Knight(std::string colour, std::string type)
-    : Piece(colour, type) {};
+Knight::Knight(std::string colour, std::string type, bool castlingRight)
+    : Piece(colour, type, castlingRight) {};
+
+Knight::Knight(Piece const& other) : Piece(other) {};
 
 Knight::~Knight() {};
 

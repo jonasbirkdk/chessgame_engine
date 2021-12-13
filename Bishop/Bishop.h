@@ -5,9 +5,10 @@
 
 class Bishop : public Piece {
   public:
-  Bishop(std::string colour, std::string type = "Bishop");
+  Bishop(std::string colour, std::string type = "Bishop",
+      bool castlingRight = false);
+  Bishop(Piece const& other);
   ~Bishop();
-
   // Takes two strings (source and destination square) and a board as
   // input and returns true if move is 'pseudo-legal' for the Piece
   // (i.e., checks if move follows rules applying to the specific piece,

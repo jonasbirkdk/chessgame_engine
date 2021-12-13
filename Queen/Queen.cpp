@@ -3,8 +3,11 @@
 #include "../macros.h"
 #include <iostream>
 
-Queen::Queen(std::string colour, std::string type)
-    : Piece(colour, type) {};
+Queen::Queen(std::string colour, std::string type, bool castlingRight)
+    : Piece(colour, type, castlingRight) {};
+
+Queen::Queen(Piece const& other)
+    : Piece(other) {};
 
 Queen::~Queen() {};
 

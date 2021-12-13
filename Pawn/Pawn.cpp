@@ -3,8 +3,10 @@
 #include "../macros.h"
 #include <iostream>
 
-Pawn::Pawn(std::string colour, std::string type)
-    : Piece(colour, type) {};
+Pawn::Pawn(std::string colour, std::string type, bool castlingRight)
+    : Piece(colour, type, castlingRight) {};
+
+Pawn::Pawn(Piece const& other) : Piece(other) {};
 
 Pawn::~Pawn() {};
 

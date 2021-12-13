@@ -19,19 +19,45 @@ ChessBoard::ChessBoard()
 
 ChessBoard& ChessBoard::operator=(ChessBoard const& other)
 {
-  auto copySquare = [&](int file, int rank) {
-    if (this->board[file][rank] != nullptr) {
-      delete this->board[file][rank];
-    }
-    if (other.board[file][rank] != nullptr) {
-      this->board[file][rank] = other.board[file][rank];
-    } else {
-      this->board[file][rank] = nullptr;
-    }
-  };
-  forEachSquare(copySquare);
+    this->nextUp = other.nextUp;
+    this->gameOver = other.gameOver;
+    
+    auto copySquare = [&](int file, int rank) {
+      if (this->board[file][rank] != nullptr) {
+        delete this->board[file][rank];
+      }
+      if (other.board[file][rank] == nullptr) {
+        this->board[file][rank] = nullptr;
+        return;
+      }
+      if (other.board[file][rank]->getType() == "Pawn") {
+        this->board[file][rank] = new Pawn(*other.board[file][rank]);
+        return;
+      }
+      if (other.board[file][rank]->getType() == "Castle") {
+        this->board[file][rank] = new Castle(*other.board[file][rank]);
+        return;
+      }
+      if (other.board[file][rank]->getType() == "Knight") {
+        this->board[file][rank] = new Knight(*other.board[file][rank]);
+        return;
+      }
+      if (other.board[file][rank]->getType() == "Bishop") {
+        this->board[file][rank] = new Bishop(*other.board[file][rank]);
+        return;
+      }
+      if (other.board[file][rank]->getType() == "Queen") {
+        this->board[file][rank] = new Queen(*other.board[file][rank]);
+        return;
+      }
+      if (other.board[file][rank]->getType() == "King") {
+        this->board[file][rank] = new King(*other.board[file][rank]);
+        return;
+      }
+    };
+    forEachSquare(copySquare);
 
-  return *this;
+    return *this;
 }
 
 ChessBoard::ChessBoard(ChessBoard const& other) { *this = other; }
@@ -103,14 +129,21 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
     printErrorMessage(srcSquare, destSquare, this->board, OWN_KING_IN_CHECK);
     return;
   }
+
+  // Check that move is legal for piece and update board if true
   if (this->board[srcFile][srcRank]->validMove(
           srcSquare, destSquare, this->board)) {
     printMove(srcSquare, destSquare, this->board);
+
     if (this->board[destFile][destRank] != nullptr) {
       delete this->board[destFile][destRank];
     }
     this->board[destFile][destRank] = this->board[srcFile][srcRank];
     this->board[srcFile][srcRank] = nullptr;
+    if (this->board[destFile][destRank]->getCastlingRight() == true) {
+      this->board[destFile][destRank]->setCastlingRight(false);
+    }
+
     this->nextUp = (this->nextUp == "White") ? "Black" : "White";
 
     if (inCheck(this->nextUp, this->board)) {
@@ -131,6 +164,103 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
   } else {
     printErrorMessage(srcSquare, destSquare, this->board, PIECE_RULES_BROKEN);
     return;
+  }
+}
+
+void ChessBoard::submitMove(std::string castlingType)
+{
+  int castleSrcFile = (castlingType == "O-O-O") ? 0 : 7;
+  int kingSrcFile = KING;
+  int castleDestFile = (castlingType == "O-O-O") ? (KING - 1) : (KING + 1);
+  int kingDestFile = (castlingType == "O-O-O") ? (KING - 2) : (KING + 2);
+  int rank = (this->nextUp == "White") ? 0 : 7;
+  std::string castleSrcSquare = integersToSquare(castleSrcFile, rank);
+  std::string kingSrcSquare = integersToSquare(kingSrcFile, rank);
+
+  // Check that input to submitMove() is valid castling notation
+  if (castlingType != "O-O" && castlingType != "O-O-O") {
+    printErrorMessage(
+        kingSrcSquare, castleSrcSquare, this->board, INVALID_CASTLING);
+    return;
+  }
+
+  // Check that game has not ended
+  if (this->gameOver == true) {
+    printErrorMessage(kingSrcSquare, castleSrcSquare, this->board, GAME_OVER);
+    return;
+  }
+
+  // Check neither kingSquare or castleSquare are empty
+  if (this->board[kingSrcFile][rank] == nullptr
+      || this->board[castleSrcFile][rank] == nullptr) {
+    printErrorMessage(
+        kingSrcSquare, castleSrcSquare, this->board, INVALID_CASTLING);
+    return;
+  }
+
+  // Check both King and Castle have castling rights
+  if (this->board[kingSrcFile][rank]->getCastlingRight() != true
+      || this->board[castleSrcFile][rank]->getCastlingRight() != true) {
+    printErrorMessage(
+        kingSrcSquare, castleSrcSquare, this->board, INVALID_CASTLING);
+    return;
+  }
+
+  // Check King is not in check
+  if (inCheck(this->nextUp, this->board)) {
+    printErrorMessage(
+        kingSrcSquare, castleSrcSquare, this->board, INVALID_CASTLING);
+    return;
+  }
+
+  // Check no pieces between King and Castle
+  if (!freePath(kingSrcSquare, castleSrcSquare, this->board)) {
+    printErrorMessage(
+        kingSrcSquare, castleSrcSquare, this->board, INVALID_CASTLING);
+    return;
+  }
+
+  // Check move does not put own King in check
+  Piece* tmpBoard[8][8];
+  copyBoard(tmpBoard, board);
+  tmpBoard[kingDestFile][rank] = tmpBoard[kingSrcFile][rank];
+  tmpBoard[kingSrcFile][rank] = nullptr;
+  tmpBoard[castleDestFile][rank] = tmpBoard[castleSrcFile][rank];
+  tmpBoard[castleDestFile][rank] = nullptr;
+  if (inCheck(nextUp, tmpBoard)) {
+    printErrorMessage(
+        kingSrcSquare, castleSrcSquare, this->board, INVALID_CASTLING);
+    return;
+  }
+
+  // Make move
+  std::cout << nextUp << " castles "
+            << ((castlingType == "O-O-O") ? "queenside" : "kingside")
+            << std::endl;
+  this->board[kingDestFile][rank] = this->board[kingSrcFile][rank];
+  this->board[kingSrcFile][rank] = nullptr;
+  this->board[castleDestFile][rank] = this->board[castleSrcFile][rank];
+  this->board[castleSrcFile][rank] = nullptr;
+
+  // Set colour for next player and remove castling rights
+  this->board[kingDestFile][rank]->setCastlingRight(false);
+  this->board[castleDestFile][rank]->setCastlingRight(false);
+  this->nextUp = (this->nextUp == "White") ? "Black" : "White";
+
+  // Check for checkmate or stalemate
+  if (inCheck(this->nextUp, this->board)) {
+    std::cout << this->nextUp << " is in check";
+    if (noValidMoves(this->nextUp, board)) {
+      std::cout << "mate" << std::endl;
+      this->gameOver = true;
+    } else {
+      std::cout << std::endl;
+    }
+  } else {
+    if (noValidMoves(this->nextUp, board)) {
+      std::cout << "Game ended in a stalemate" << std::endl;
+      this->gameOver = true;
+    }
   }
 }
 

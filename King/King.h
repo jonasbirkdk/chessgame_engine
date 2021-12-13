@@ -4,13 +4,11 @@
 #include <iostream>
 
 class King : public Piece {
-  bool castlingRight;
-
   public:
   King(
-      std::string colour, std::string type = "King");
+      std::string colour, std::string type = "King", bool castlingRight = true);
+  King(Piece const& other);
   ~King();
-
   // Takes two strings (source and destination square) and a board as
   // input and returns true if move is 'pseudo-legal' for the Piece
   // (i.e., checks if move follows rules applying to the specific piece,

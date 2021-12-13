@@ -5,9 +5,10 @@
 
 class Pawn : public Piece {
   public:
-  Pawn(std::string colour, std::string type = "Pawn");
+  Pawn(std::string colour, std::string type = "Pawn",
+      bool castlingRight = false);
+  Pawn(Piece const& other);
   ~Pawn();
-
   // Takes two strings (source and destination square) and a board as
   // input and returns true if move is 'pseudo-legal' for the Piece
   // (i.e., checks if move follows rules applying to the specific piece,

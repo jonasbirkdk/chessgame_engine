@@ -3,17 +3,30 @@
 #include <iostream>
 
 class Piece {
-  private:
   std::string colour;
   std::string type;
+  bool castlingRight;
 
   public:
-  Piece(std::string colour, std::string type)
+  Piece(std::string colour, std::string type, bool castlingRight)
       : colour(colour)
-      , type(type) {};
+      , type(type)
+      , castlingRight(castlingRight) {};
+  Piece& operator=(Piece const& other)
+  {
+    this->colour = other.colour;
+    this->type = other.type;
+    this->castlingRight = other.castlingRight;
+    return *this;
+  }
+  Piece(Piece const& other) { *this = other; }
   std::string getColour() const { return this->colour; }
   std::string getType() const { return this->type; }
-
+  bool getCastlingRight() const { return this->castlingRight; }
+  void setCastlingRight(bool castlingRight)
+  {
+    this->castlingRight = castlingRight;
+  }
   // NOTE: Declared virtual, to be overriden by each 'Piece' subclass
   // Takes two strings (source and destination square) and a board as
   // input and returns true if move is 'pseudo-legal' for the Piece

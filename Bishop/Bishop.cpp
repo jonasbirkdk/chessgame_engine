@@ -3,8 +3,10 @@
 #include "../macros.h"
 #include <iostream>
 
-Bishop::Bishop(std::string colour, std::string type)
-    : Piece(colour, type) {};
+Bishop::Bishop(std::string colour, std::string type, bool castlingRight)
+    : Piece(colour, type, castlingRight) {};
+
+Bishop::Bishop(Piece const& other) : Piece(other) {};
 
 Bishop::~Bishop() {};
 

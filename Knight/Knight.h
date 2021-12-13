@@ -5,9 +5,10 @@
 
 class Knight : public Piece {
   public:
-  Knight(std::string colour, std::string type = "Knight");
+  Knight(std::string colour, std::string type = "Knight",
+      bool castlingRight = false);
+  Knight(Piece const& other);
   ~Knight();
-
   // Takes two strings (source and destination square) and a board as
   // input and returns true if move is 'pseudo-legal' for the Piece
   // (i.e., checks if move follows rules applying to the specific piece,

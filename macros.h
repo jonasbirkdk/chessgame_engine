@@ -21,3 +21,4 @@
 #define PIECE_RULES_BROKEN 5
 #define GAME_OVER 6
 #define NO_MOVE 7
+#define INVALID_CASTLING 8

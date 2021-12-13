@@ -4,12 +4,11 @@
 #include <iostream>
 
 class Castle : public Piece {
-  bool castlingRight;
-
   public:
-  Castle(std::string colour, std::string type = "Castle");
+  Castle(std::string colour, std::string type = "Castle",
+      bool castlingRight = true);
+  Castle(Piece const& other);
   ~Castle();
-
   // Takes two strings (source and destination square) and a board as
   // input and returns true if move is 'pseudo-legal' for the Piece
   // (i.e., checks if move follows rules applying to the specific piece,

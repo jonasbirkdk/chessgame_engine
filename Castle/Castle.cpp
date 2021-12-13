@@ -3,8 +3,11 @@
 #include "../macros.h"
 #include <iostream>
 
-Castle::Castle(std::string colour, std::string type)
-    : Piece(colour, type) {};
+Castle::Castle(std::string colour, std::string type, bool castlingRight)
+    : Piece(colour, type, castlingRight) {};
+
+Castle::Castle(Piece const& other)
+    : Piece(other) {};
 
 Castle::~Castle() {};
 
