@@ -281,8 +281,5 @@ void printErrorMessage(std::string srcSquare, std::string destSquare,
     std::cout << "Invalid move: source and destination squares are the same"
               << std::endl;
     break;
-  case INVALID_CASTLING:
-    std::cout << "Castling move is not valid" << std::endl;
-  break;
   }
 }
