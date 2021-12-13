@@ -6,7 +6,8 @@
 Pawn::Pawn(std::string colour, std::string type, bool castlingRight)
     : Piece(colour, type, castlingRight) {};
 
-Pawn::Pawn(Piece const& other) : Piece(other) {};
+Pawn::Pawn(Piece const& other)
+    : Piece(other) {};
 
 Pawn::~Pawn() {};
 

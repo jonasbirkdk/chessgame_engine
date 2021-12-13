@@ -6,7 +6,8 @@
 King::King(std::string colour, std::string type, bool castlingRight)
     : Piece(colour, type, castlingRight) {};
 
-King::King(Piece const& other) : Piece(other) {};
+King::King(Piece const& other)
+    : Piece(other) {};
 
 King::~King() {};
 
@@ -21,6 +22,6 @@ bool King::validMove(
   if (abs(srcFile - destFile) != 1 || abs(srcRank - destRank) != 1) {
     return false;
   }
-  
+
   return true;
 }

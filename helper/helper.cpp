@@ -283,6 +283,6 @@ void printErrorMessage(std::string srcSquare, std::string destSquare,
     break;
   case INVALID_CASTLING:
     std::cout << "Castling move is not valid" << std::endl;
-  break;
+    break;
   }
 }

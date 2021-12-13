@@ -6,7 +6,8 @@
 Bishop::Bishop(std::string colour, std::string type, bool castlingRight)
     : Piece(colour, type, castlingRight) {};
 
-Bishop::Bishop(Piece const& other) : Piece(other) {};
+Bishop::Bishop(Piece const& other)
+    : Piece(other) {};
 
 Bishop::~Bishop() {};
 

@@ -6,7 +6,8 @@
 Knight::Knight(std::string colour, std::string type, bool castlingRight)
     : Piece(colour, type, castlingRight) {};
 
-Knight::Knight(Piece const& other) : Piece(other) {};
+Knight::Knight(Piece const& other)
+    : Piece(other) {};
 
 Knight::~Knight() {};
 

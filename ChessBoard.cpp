@@ -19,45 +19,45 @@ ChessBoard::ChessBoard()
 
 ChessBoard& ChessBoard::operator=(ChessBoard const& other)
 {
-    this->nextUp = other.nextUp;
-    this->gameOver = other.gameOver;
-    
-    auto copySquare = [&](int file, int rank) {
-      if (this->board[file][rank] != nullptr) {
-        delete this->board[file][rank];
-      }
-      if (other.board[file][rank] == nullptr) {
-        this->board[file][rank] = nullptr;
-        return;
-      }
-      if (other.board[file][rank]->getType() == "Pawn") {
-        this->board[file][rank] = new Pawn(*other.board[file][rank]);
-        return;
-      }
-      if (other.board[file][rank]->getType() == "Castle") {
-        this->board[file][rank] = new Castle(*other.board[file][rank]);
-        return;
-      }
-      if (other.board[file][rank]->getType() == "Knight") {
-        this->board[file][rank] = new Knight(*other.board[file][rank]);
-        return;
-      }
-      if (other.board[file][rank]->getType() == "Bishop") {
-        this->board[file][rank] = new Bishop(*other.board[file][rank]);
-        return;
-      }
-      if (other.board[file][rank]->getType() == "Queen") {
-        this->board[file][rank] = new Queen(*other.board[file][rank]);
-        return;
-      }
-      if (other.board[file][rank]->getType() == "King") {
-        this->board[file][rank] = new King(*other.board[file][rank]);
-        return;
-      }
-    };
-    forEachSquare(copySquare);
+  this->nextUp = other.nextUp;
+  this->gameOver = other.gameOver;
 
-    return *this;
+  auto copySquare = [&](int file, int rank) {
+    if (this->board[file][rank] != nullptr) {
+      delete this->board[file][rank];
+    }
+    if (other.board[file][rank] == nullptr) {
+      this->board[file][rank] = nullptr;
+      return;
+    }
+    if (other.board[file][rank]->getType() == "Pawn") {
+      this->board[file][rank] = new Pawn(*other.board[file][rank]);
+      return;
+    }
+    if (other.board[file][rank]->getType() == "Castle") {
+      this->board[file][rank] = new Castle(*other.board[file][rank]);
+      return;
+    }
+    if (other.board[file][rank]->getType() == "Knight") {
+      this->board[file][rank] = new Knight(*other.board[file][rank]);
+      return;
+    }
+    if (other.board[file][rank]->getType() == "Bishop") {
+      this->board[file][rank] = new Bishop(*other.board[file][rank]);
+      return;
+    }
+    if (other.board[file][rank]->getType() == "Queen") {
+      this->board[file][rank] = new Queen(*other.board[file][rank]);
+      return;
+    }
+    if (other.board[file][rank]->getType() == "King") {
+      this->board[file][rank] = new King(*other.board[file][rank]);
+      return;
+    }
+  };
+  forEachSquare(copySquare);
+
+  return *this;
 }
 
 ChessBoard::ChessBoard(ChessBoard const& other) { *this = other; }
