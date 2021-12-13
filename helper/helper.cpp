@@ -119,7 +119,7 @@ bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
   return true;
 }
 
-bool inCheck(std::string kingColour, Piece* board[8][8])
+bool inCheck(std::string const& kingColour, Piece* board[8][8])
 {
   std::string kingPosition;
   bool kingFound = false;
@@ -161,7 +161,7 @@ bool inCheck(std::string kingColour, Piece* board[8][8])
   return inCheck;
 }
 
-bool noValidMoves(std::string teamColour, Piece* board[8][8])
+bool noValidMoves(std::string const& teamColour, Piece* board[8][8])
 {
   std::string srcSquare;
   std::string destSquare;
@@ -186,7 +186,7 @@ bool noValidMoves(std::string teamColour, Piece* board[8][8])
     }
 
     Piece* tmpBoard[8][8];
-    copyArray(tmpBoard, board);
+    copyBoard(tmpBoard, board);
     tmpBoard[destFile][destRank] = tmpBoard[srcFile][srcRank];
     tmpBoard[srcFile][srcRank] = nullptr;
     if (inCheck(teamColour, tmpBoard)) {
@@ -277,5 +277,12 @@ void printErrorMessage(std::string srcSquare, std::string destSquare,
                  "to start a new game"
               << std::endl;
     break;
+  case NO_MOVE:
+    std::cout << "Invalid move: source and destination squares are the same"
+              << std::endl;
+    break;
+  case INVALID_CASTLING:
+    std::cout << "Castling move is not valid" << std::endl;
+  break;
   }
 }

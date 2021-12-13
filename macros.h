@@ -1,7 +1,6 @@
 #pragma once
 
 // Global constants
-#define PIECES_PER_TEAM 6
 #define MAX_FILE 7
 #define MAX_RANK 7
 
@@ -20,4 +19,5 @@
 #define NOT_YOUR_TURN 3
 #define FRIENDLY_FIRE 4
 #define PIECE_RULES_BROKEN 5
-#define GAME_OVER
+#define GAME_OVER 6
+#define NO_MOVE 7

@@ -17,6 +17,25 @@ ChessBoard::ChessBoard()
   this->resetBoard();
 };
 
+ChessBoard& ChessBoard::operator=(ChessBoard const& other)
+{
+  auto copySquare = [&](int file, int rank) {
+    if (this->board[file][rank] != nullptr) {
+      delete this->board[file][rank];
+    }
+    if (other.board[file][rank] != nullptr) {
+      this->board[file][rank] = other.board[file][rank];
+    } else {
+      this->board[file][rank] = nullptr;
+    }
+  };
+  forEachSquare(copySquare);
+
+  return *this;
+}
+
+ChessBoard::ChessBoard(ChessBoard const& other) { *this = other; }
+
 ChessBoard::~ChessBoard()
 {
   // Deleting any remaining pieces
@@ -48,16 +67,15 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
     return;
   }
 
-  // Checking srcSquare is not empty
-  if (this->board[srcFile][srcRank] == nullptr) {
-    printErrorMessage(srcSquare, destSquare, this->board, EMPTY_SOURCE_SQUARE);
+  // Check that srcSquare and destSquare are not identical
+  if (srcSquare == destSquare) {
+    printErrorMessage(srcSquare, destSquare, this->board, NO_MOVE);
     return;
   }
 
-  // Checking that srcSquare has a valid piece (i.e., white
-  // piece if white's turn)
-  if (this->board[srcFile][srcRank]->getColour() != nextUp) {
-    printErrorMessage(srcSquare, destSquare, this->board, NOT_YOUR_TURN);
+  // Checking srcSquare is not empty
+  if (this->board[srcFile][srcRank] == nullptr) {
+    printErrorMessage(srcSquare, destSquare, this->board, EMPTY_SOURCE_SQUARE);
     return;
   }
 
@@ -69,9 +87,16 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
     return;
   }
 
+  // Checking that srcSquare has a valid piece (i.e., white
+  // piece if white's turn)
+  if (this->board[srcFile][srcRank]->getColour() != nextUp) {
+    printErrorMessage(srcSquare, destSquare, this->board, NOT_YOUR_TURN);
+    return;
+  }
+
   // Check that move does not put or leave own king in check
   Piece* tmpBoard[8][8];
-  copyArray(tmpBoard, board);
+  copyBoard(tmpBoard, board);
   tmpBoard[destFile][destRank] = tmpBoard[srcFile][srcRank];
   tmpBoard[srcFile][srcRank] = nullptr;
   if (inCheck(nextUp, tmpBoard)) {

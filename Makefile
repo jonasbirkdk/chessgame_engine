@@ -1,4 +1,4 @@
-CC = clang++ -std=c++17 -Wall
+CC = g++ -Wpedantic
 target = chess
 	
 PIECES = Bishop Castle King Knight Pawn Queen helper

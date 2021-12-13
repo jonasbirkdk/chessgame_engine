@@ -13,6 +13,8 @@ class ChessBoard {
   bool gameOver;
 
   ChessBoard();
+  ChessBoard& operator=(ChessBoard const& other);
+  ChessBoard(ChessBoard const& other);
   ~ChessBoard();
 
   // Sets 'nextUp' to "White", deletes any current pieces on board,

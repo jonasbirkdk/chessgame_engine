@@ -4,6 +4,8 @@
 #include <iostream>
 
 class Castle : public Piece {
+  bool castlingRight;
+
   public:
   Castle(std::string colour, std::string type = "Castle");
   ~Castle();
@@ -14,6 +16,6 @@ class Castle : public Piece {
   // e.g., that Castles can only move side-to-side, but not generic
   // Piece rules like that you can't put or leave own king in check
   // or move onto a square where your own teammate is on)
-  bool validMove(
-      std::string srcSquare, std::string destSquare, Piece* board[8][8]);
+  bool validMove(std::string srcSquare, std::string destSquare,
+      Piece* board[8][8]) override;
 };

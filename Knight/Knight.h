@@ -14,6 +14,6 @@ class Knight : public Piece {
   // e.g., that Knight can't move 3 squares straight, but not generic
   // Piece rules like that you can't put or leave own king in check
   // or move onto a square where your own teammate is on)
-  bool validMove(
-      std::string srcSquare, std::string destSquare, Piece* board[8][8]);
+  bool validMove(std::string srcSquare, std::string destSquare,
+      Piece* board[8][8]) override;
 };

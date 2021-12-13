@@ -19,6 +19,6 @@ bool King::validMove(
   if (abs(srcFile - destFile) != 1 || abs(srcRank - destRank) != 1) {
     return false;
   }
-
+    
   return true;
 }

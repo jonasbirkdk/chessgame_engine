@@ -4,8 +4,11 @@
 #include <iostream>
 
 class King : public Piece {
+  bool castlingRight;
+
   public:
-  King(std::string colour, std::string type = "King");
+  King(
+      std::string colour, std::string type = "King");
   ~King();
 
   // Takes two strings (source and destination square) and a board as
@@ -13,6 +16,6 @@ class King : public Piece {
   // (i.e., checks if move follows rules applying to the specific piece,
   // e.g., that King can only move one square, but not generic
   // Piece rules like that King can't move into check)
-  bool validMove(
-      std::string srcSquare, std::string destSquare, Piece* board[8][8]);
+  bool validMove(std::string srcSquare, std::string destSquare,
+      Piece* board[8][8]) override;
 };

@@ -11,8 +11,8 @@ class Piece {
   Piece(std::string colour, std::string type)
       : colour(colour)
       , type(type) {};
-  std::string getColour() { return this->colour; }
-  std::string getType() { return this->type; }
+  std::string getColour() const { return this->colour; }
+  std::string getType() const { return this->type; }
 
   // NOTE: Declared virtual, to be overriden by each 'Piece' subclass
   // Takes two strings (source and destination square) and a board as

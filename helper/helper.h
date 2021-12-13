@@ -42,7 +42,7 @@ bool sideToSideMove(std::string srcSquare, std::string destSquare);
 
 // Takes two boards as input and copies all elements of
 // the srcBoard to the destBoard
-void copyArray(Piece* destBoard[8][8], Piece* srcBoard[8][8]);
+void copyBoard(Piece* destBoard[8][8], Piece* srcBoard[8][8]);
 
 // Takes two strings (source and destination squares) and a board as input,
 // returning true if all squares BETWEEN srcSquare and destSquare are empty,
@@ -54,12 +54,12 @@ bool freePath(
 // "White" or "Black"
 // Takes string kingColour and board as input and returns
 // true if King of colour kingColour is in check, false otherwise
-bool inCheck(std::string kingColour, Piece* board[8][8]);
+bool inCheck(std::string const& kingColour, Piece* board[8][8]);
 
 // Precondition: string teamColour must be either "Black" or "White"
 // Takes string teamColour and a board as input and returns true
 // if there are no legal moves for any piece of colour teamColour
-bool noValidMoves(std::string teamColour, Piece* board[8][8]);
+bool noValidMoves(std::string const& teamColour, Piece* board[8][8]);
 
 // Precondition: srcSquare and destSquare constitutes a legal move
 // on 'board' (e.g., srcSquare not empty, piece on destSquare
@@ -72,7 +72,7 @@ void printMove(
     std::string srcSquare, std::string destSquare, Piece* board[8][8]);
 
 // Takes two strings (source and destination squares), a chessboard
-// and an error code (0-6, see 'macros.h'), then prints informative
+// and an error code (see 'macros.h'), then prints informative
 // error messages corresponding to the error code
 void printErrorMessage(std::string srcSquare, std::string destSquare,
     Piece* board[8][8], int errorCode);
