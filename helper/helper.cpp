@@ -2,16 +2,16 @@
 #include "../macros.h"
 
 void forEachSquare(
-    std::function<void(int file, int rank)> const& func, bool optional)
+    std::function<void(int file, int rank)> const& func, bool optionalFlag)
 {
-  for (int file = 0; file <= MAX_FILE; ++file) {
-    for (int rank = 0; rank <= MAX_RANK; ++rank) {
-      if (optional == true) {
+  for (auto file = 0u; file <= MAX_FILE; ++file) {
+    for (auto rank = 0u; rank <= MAX_RANK; ++rank) {
+      if (optionalFlag == true) {
         break;
       }
       func(file, rank);
     }
-    if (optional == true) {
+    if (optionalFlag == true) {
       break;
     }
   }
@@ -32,8 +32,8 @@ std::string integersToSquare(int file, int rank)
 
 bool inputValid(std::string square)
 {
-  int file = fileToInt(square);
-  int rank = rankToInt(square);
+  auto file = fileToInt(square);
+  auto rank = rankToInt(square);
 
   if (file < 0 || file > MAX_FILE) {
     return false;
@@ -48,10 +48,10 @@ bool inputValid(std::string square)
 
 bool diagonalMove(std::string srcSquare, std::string destSquare)
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   if (abs(srcFile - destFile) == abs(srcRank - destRank)) {
     return (abs(srcFile - destFile) > 0);
@@ -62,10 +62,10 @@ bool diagonalMove(std::string srcSquare, std::string destSquare)
 
 bool sideToSideMove(std::string srcSquare, std::string destSquare)
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   if (srcFile == destFile) {
     return (abs(srcRank - destRank) > 0);
@@ -88,25 +88,25 @@ void copyBoard(Piece* destBoard[8][8], Piece* srcBoard[8][8])
 
 bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   // Values to add to current file / rank in while loop
   // (representing the 'direction' a piece is moving in)
   // Will be +1 if srcFile(or rank) is lower than dstFile(or rank);
   // -1 if greater than destFile(or rank); 0 if srcFile (or rank)
   // equals destFile (or rank)
-  int fileValueChange = (srcFile == destFile)
+  auto fileValueChange = (srcFile == destFile)
       ? 0
       : abs(destFile - srcFile) / (destFile - srcFile);
-  int rankValueChange = (srcRank == destRank)
+  auto rankValueChange = (srcRank == destRank)
       ? 0
       : abs(destRank - srcRank) / (destRank - srcRank);
 
-  int currentFile = srcFile + fileValueChange;
-  int currentRank = srcRank + rankValueChange;
+  auto currentFile = srcFile + fileValueChange;
+  auto currentRank = srcRank + rankValueChange;
 
   while (currentFile != destFile || currentRank != destRank) {
     if (board[currentFile][currentRank] != nullptr) {
@@ -122,8 +122,8 @@ bool freePath(std::string srcSquare, std::string destSquare, Piece* board[8][8])
 bool inCheck(std::string const& kingColour, Piece* board[8][8])
 {
   std::string kingPosition;
-  bool kingFound = false;
-  bool inCheck = false;
+  auto kingFound = false;
+  auto inCheck = false;
 
   auto findKing = [&](int file, int rank) {
     if (board[file][rank] == nullptr) {
@@ -142,7 +142,7 @@ bool inCheck(std::string const& kingColour, Piece* board[8][8])
   forEachSquare(findKing, kingFound);
 
   auto tryKingAttack = [&](int file, int rank) {
-    std::string currentSquare = integersToSquare(file, rank);
+    auto currentSquare = integersToSquare(file, rank);
     if (board[file][rank] == nullptr) {
       return;
     }
@@ -168,7 +168,7 @@ bool noValidMoves(std::string const& teamColour, Piece* board[8][8])
   // Bool input to forEachSquare function must initially
   // be false, hence we set this to 'validMoves' and have
   // noValidMoves() return (!validMoves)
-  bool validMoves = false;
+  auto validMoves = false;
 
   auto attemptMove = [&](int destFile, int destRank) {
     if (board[destFile][destRank] == nullptr) {
@@ -215,10 +215,10 @@ bool noValidMoves(std::string const& teamColour, Piece* board[8][8])
 void printMove(
     std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   std::cout << board[srcFile][srcRank]->getColour() << "'s "
             << board[srcFile][srcRank]->getType() << " moves from " << srcSquare
@@ -237,10 +237,10 @@ void printMove(
 void printErrorMessage(std::string srcSquare, std::string destSquare,
     Piece* board[8][8], int errorCode)
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   switch (errorCode) {
   case INVALID_INPUT:

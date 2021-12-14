@@ -14,10 +14,10 @@ Knight::~Knight() {};
 bool Knight::validMove(
     std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   // Check case where Knight jumps one square horizontally
   if (abs(srcFile - destFile) == 1) {

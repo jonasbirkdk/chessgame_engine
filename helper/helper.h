@@ -7,10 +7,10 @@
 // Takes function as input as well as optional boolean variable
 // then executes function for each square on the chessboard (A1 to H8).
 // If boolean is provided, forEachSquare() will stop looping
-// once the boolean variable has value set to 'true'. Hence, bool input should
+// once the boolean variable has value set to 'true'. Hence, bool flag should
 // always be false initially, as otherwise the loop will break immediately
-void forEachSquare(
-    std::function<void(int file, int rank)> const& func, bool optional = false);
+void forEachSquare(std::function<void(int file, int rank)> const& func,
+    bool optionalFlag = false);
 // Takes a string square as input and returns its file
 // as a 0-based index into the alphabet (e.g., A8 returns 0)
 int fileToInt(std::string square);

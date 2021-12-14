@@ -14,11 +14,11 @@ Pawn::~Pawn() {};
 bool Pawn::validMove(
     std::string srcSquare, std::string destSquare, Piece* board[8][8])
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
-  int pawnRank = (this->getColour() == "Black") ? 6 : 1;
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
+  auto pawnRank = (this->getColour() == "Black") ? 6 : 1;
 
   // Check direction along rank is valid
   if (this->getColour() == "Black") {

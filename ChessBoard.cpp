@@ -76,10 +76,10 @@ ChessBoard::~ChessBoard()
 
 void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
 {
-  int srcFile = fileToInt(srcSquare);
-  int srcRank = rankToInt(srcSquare);
-  int destFile = fileToInt(destSquare);
-  int destRank = rankToInt(destSquare);
+  auto srcFile = fileToInt(srcSquare);
+  auto srcRank = rankToInt(srcSquare);
+  auto destFile = fileToInt(destSquare);
+  auto destRank = rankToInt(destSquare);
 
   // Check that game has not ended
   if (this->gameOver == true) {
@@ -169,13 +169,13 @@ void ChessBoard::submitMove(std::string srcSquare, std::string destSquare)
 
 void ChessBoard::submitMove(std::string castlingType)
 {
-  int castleSrcFile = (castlingType == "O-O-O") ? 0 : 7;
-  int kingSrcFile = KING;
-  int castleDestFile = (castlingType == "O-O-O") ? (KING - 1) : (KING + 1);
-  int kingDestFile = (castlingType == "O-O-O") ? (KING - 2) : (KING + 2);
-  int rank = (this->nextUp == "White") ? 0 : 7;
-  std::string castleSrcSquare = integersToSquare(castleSrcFile, rank);
-  std::string kingSrcSquare = integersToSquare(kingSrcFile, rank);
+  auto castleSrcFile = (castlingType == "O-O-O") ? 0 : 7;
+  auto kingSrcFile = KING;
+  auto castleDestFile = (castlingType == "O-O-O") ? (KING - 1) : (KING + 1);
+  auto kingDestFile = (castlingType == "O-O-O") ? (KING - 2) : (KING + 2);
+  auto rank = (this->nextUp == "White") ? 0 : 7;
+  auto castleSrcSquare = integersToSquare(castleSrcFile, rank);
+  auto kingSrcSquare = integersToSquare(kingSrcFile, rank);
 
   // Check that input to submitMove() is valid castling notation
   if (castlingType != "O-O" && castlingType != "O-O-O") {
@@ -266,9 +266,9 @@ void ChessBoard::submitMove(std::string castlingType)
 
 void ChessBoard::resetBoard()
 {
-  int piecesPerTeam = 5;
-  int blackBackRank = 7;
-  int whiteBackRank = 0;
+  auto piecesPerTeam = 5;
+  auto blackBackRank = 7;
+  auto whiteBackRank = 0;
 
   std::cout << "A new chess game is started!" << std::endl;
 
@@ -286,7 +286,7 @@ void ChessBoard::resetBoard()
   forEachSquare(deletePiece);
 
   // Setting up all pieces on their starting positions
-  for (int file = 0; file <= piecesPerTeam; ++file) {
+  for (auto file = 0u; file <= piecesPerTeam; ++file) {
     switch (file) {
     case CASTLE:
       this->board[file][blackBackRank] = new Castle("Black");
@@ -315,7 +315,7 @@ void ChessBoard::resetBoard()
       this->board[file][whiteBackRank] = new King("White");
       break;
     case PAWN:
-      for (int tmpFile = 0; tmpFile <= MAX_FILE; ++tmpFile) {
+      for (auto tmpFile = 0u; tmpFile <= MAX_FILE; ++tmpFile) {
         this->board[tmpFile][blackBackRank - 1] = new Pawn("Black");
         this->board[tmpFile][whiteBackRank + 1] = new Pawn("White");
       }
